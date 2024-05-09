@@ -1,75 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Employee</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <title>Edite Employee</title>
     <style>
-        /* CSS-stijlen voor update_employee.html */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-        }
-        .form-group {
+        h1 {
+            color: #333;
+            text-align: center;
             margin-bottom: 20px;
         }
-        .btn-primary {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="email"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #0084ff;
+            outline: none;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button, .home-button {
+            color: white;
             text-decoration: none;
-            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
             margin-top: 10px;
         }
-        .invalid-feedback {
-            display: block;
-            color: red;
+        .update-button {
+            background-color: #0084ff;
+        }
+        .update-button:hover {
+            background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #ff0202;
+        }
+        .delete-button:hover {
+            background-color: #cc0202;
+        }
+        .home-button {
+            background-color: #4CAF50;
+        }
+        .home-button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light text-light bg-primary">
-    <h1><a class="navbar-brand text-light" href="#">SPRING BOOT TEST</a></h1>
-</nav>
-<div class="container my-2 py-md-3">
-    <h1>Update Employee</h1>
-    <form id="updateForm" th:action="@{/saveEmployee}" th:object="${employee}" method="POST" onsubmit="return validateEmail()">
-        <!-- Add hidden field for employee ID -->
-        <input type="hidden" th:field="*{id}">
-        <input type="text" th:field="*{firstName}" placeholder="First Name" class="form-control mb-4">
-        <input type="text" th:field="*{lastName}" placeholder="Last Name" class="form-control mb-4">
-        <input type="email" th:field="*{email}" placeholder="Email" class="form-control mb-4" id="email">
-        <div class="invalid-feedback" id="emailError"></div>
-        <button type="submit" class="btn btn-primary">Update Employee</button>
+<div>
+    <h1>Edite Employee</h1>
+    <form th:action="@{/updateEmployee}" th:object="${employee}" method="post">
+        <input type="hidden" name="id" th:value="*{id}">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" th:value="*{firstName}" required>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" th:value="*{lastName}" required>
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" name="email" th:value="*{email}" required>
+        <div class="button-container">
+            <button type="submit" class="update-button">Edite</button>
+
+            <a href="/" class="home-button">Back To Homepage</a>
+        </div>
     </form>
-    <a href={"/"}>Back to Employee List</a>
 </div>
 
 <script>
-    function validateEmail() {
-        const emailInput = document.getElementById('email');
-        const emailError = document.getElementById('emailError');
-
-        if (emailInput.value.trim() === '') {
-            emailError.textContent = 'Email is required';
-            emailInput.classList.add('is-invalid');
-            return false;
-        } else {
-            emailError.textContent = '';
-            emailInput.classList.remove('is-invalid');
+    function deleteEmployee(id) {
+        if (confirm('Are you sure you want to delete this employee?')) {
+            window.location.href = '/deleteEmployee/' + id;
         }
-
-        // Perform additional validation (e.g., check if email is unique via AJAX)
-        // For simplicity, we assume the email is valid here
-        return true;
     }
 </script>
-
 </body>
 </html>

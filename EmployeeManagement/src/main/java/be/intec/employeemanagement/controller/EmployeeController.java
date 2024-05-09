@@ -8,8 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class EmployeeController {
@@ -22,42 +21,61 @@ public class EmployeeController {
         model.addAttribute("listEmployees", employeeService.getAllEmployees());
         return "index";
     }
+
     @GetMapping("/showNewEmployeeForm")
-    public String showNewEmployeeForm(Model model){
-        // create model attribute to bind form data
+    public String showNewEmployeeForm(Model model) {
         Employee employee = new Employee();
         model.addAttribute("employee", employee);
         return "new_employee";
     }
+
     @PostMapping("/saveEmployee")
-    public String saveEmployee(@ModelAttribute("employee") @Validated Employee employee, BindingResult result) {
+    public String saveEmployee(@ModelAttribute("employee") @Validated Employee employee, BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            return "new_employee"; // Terug naar het formulier als er validatiefouten zijn
+            return "new_employee";
         }
 
         if (!employeeService.isEmailUnique(employee.getEmail(), employee.getId())) {
-            result.rejectValue("email", "error.employee", "Email already exists"); // Voeg foutmelding toe aan resultaat
-            return "new_employee"; // Terug naar het formulier met foutmelding
+            result.rejectValue("email", "error.employee", "Email already exists");
+            return "new_employee";
         }
 
         employeeService.saveEmployee(employee);
+        redirectAttributes.addFlashAttribute("success", "Employee saved successfully!");
         return "redirect:/";
     }
 
-    @GetMapping("/showFromForUpdate/{id}")
-    public String showFromForUpdate(@PathVariable (value = "id") Long id, Model model){
-        // get employee from the service
+    @GetMapping("/showFormForUpdate/{id}")
+    public String showFormForUpdate(@PathVariable(value = "id") Long id, Model model, RedirectAttributes redirectAttributes) {
         Employee employee = employeeService.getEmployeeById(id);
-        // set employee as a model attribute to pre-populate the form
+        if (employee == null) {
+            redirectAttributes.addFlashAttribute("error", "Employee not found!");
+            return "redirect:/";
+        }
         model.addAttribute("employee", employee);
         return "update_employee";
     }
+
+    @PostMapping("/updateEmployee")
+    public String updateEmployee(@ModelAttribute("employee") @Validated Employee employee, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "update_employee";
+        }
+
+        if (!employeeService.isEmailUnique(employee.getEmail(), employee.getId())) {
+            result.rejectValue("email", "error.employee", "Email already exists");
+            return "update_employee";
+        }
+
+        employeeService.saveEmployee(employee);
+        redirectAttributes.addFlashAttribute("success", "Employee updated successfully!");
+        return "redirect:/";
+    }
+
     @GetMapping("/deleteEmployee/{id}")
-    public String deleteEmployee(@PathVariable (value = "id") Long id){
-        // call delete employee method
-        this.employeeService.deleteEmployeeById(id);
+    public String deleteEmployee(@PathVariable(value = "id") Long id, RedirectAttributes redirectAttributes) {
+        employeeService.deleteEmployeeById(id);
+        redirectAttributes.addFlashAttribute("success", "Employee deleted successfully!");
         return "redirect:/";
     }
 }
-
-
